@@ -1,10 +1,28 @@
 #!/bin/sh
 # Install global Git hooks that strip Co-authored-by from every commit.
+# Safe to run from a clone, or piped: curl -fsSL …/install.sh | sh
+#
 # If core.hooksPath is already set, hooks are merged into that directory.
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-src="$repo/hooks"
+write_helper() {
+  dest_helper=$1
+  cat > "$dest_helper" <<'EOF'
+#!/bin/sh
+# Shared by prepare-commit-msg and commit-msg.
+# Removes Co-authored-by trailer lines from a commit message file.
+
+git_strip_coauthored_by() {
+  msg=$1
+  [ -n "$msg" ] && [ -f "$msg" ] || return 0
+  grep -qiE '^[[:space:]]*co-authored-by:' "$msg" || return 0
+  tmp=$(mktemp)
+  grep -viE '^[[:space:]]*co-authored-by:' "$msg" > "$tmp" || true
+  mv "$tmp" "$msg"
+}
+EOF
+  chmod +x "$dest_helper"
+}
 
 existing=$(git config --global --get core.hooksPath || true)
 if [ -n "$existing" ]; then
@@ -19,8 +37,7 @@ else
 fi
 
 mkdir -p "$dest"
-cp "$src/git-strip-coauthor.sh" "$dest/git-strip-coauthor.sh"
-chmod +x "$dest/git-strip-coauthor.sh"
+write_helper "$dest/git-strip-coauthor.sh"
 
 snippet() {
   cat <<'EOF'

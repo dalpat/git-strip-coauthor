@@ -12,27 +12,25 @@ It does not reject the commit. The commit succeeds. The trailer is gone.
 
 ## Install
 
-Needs `git` and a POSIX `sh`. No Node, no leftover leftover, no extra packages.
+Needs `git` and a POSIX `sh`. `curl` or `wget` only for the one-liner. No Node, no leftover leftover.
 
 ```sh
-git clone https://github.com/dalpat/git-strip-coauthor.git
-cd git-strip-coauthor
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/dalpat/git-strip-coauthor/main/install.sh | sh
 ```
 
-`install.sh` will:
+```sh
+wget -qO- https://raw.githubusercontent.com/dalpat/git-strip-coauthor/main/install.sh | sh
+```
+
+`install.sh` is self-contained. Piped or cloned, it will:
 
 1. Use your existing `core.hooksPath`, or set it to `~/.config/git/hooks` if unset
-2. Copy `hooks/git-strip-coauthor.sh` into that directory
+2. Write `git-strip-coauthor.sh` into that directory
 3. Prepend a marked block to `prepare-commit-msg` and `commit-msg`
 
 Existing hook code (lefthook, lint-staged, a company `commit-msg`) is left in place. Running install twice is a no-op.
 
-```sh
-./test.sh
-```
-
-That creates a throwaway repo, commits with `--no-verify` and a Cursor trailer, and fails if the trailer is still on the commit.
+From a clone, `./install.sh` and `./test.sh` still work. `test.sh` creates a throwaway repo, commits with `--no-verify` and a Cursor trailer, and fails if the trailer is still on the commit.
 
 ## Uninstall
 
