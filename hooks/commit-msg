@@ -1,0 +1,5 @@
+#!/bin/sh
+# git-strip-coauthor:start
+. "$(dirname "$0")/git-strip-coauthor.sh"
+git_strip_coauthored_by "$1"
+# git-strip-coauthor:end
